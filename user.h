@@ -56,6 +56,7 @@ private:
     QLabel *userStatus;                     //用户状态
     QMenu *userStatusMenu;                  //状态菜单
     QPushButton *userStatusChoose;          //用户状态选择按钮
+    QString change;
 
     //methods
     void connectAll();                      //信号与槽连接
