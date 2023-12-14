@@ -76,19 +76,19 @@ void User::InitWidget()
 void User::InitUserInfoWidget()
 {
     //<-设置昵称
-    nickname_ = new QLabel(this->centralWidget());       //创建昵称Label控件
-    SetControlTextFont(nickname_, 15, true);             //设置字体样式，字号15，加粗
-    SetControlTextColor(nickname_, COLOR_NICKNAME);      //设置字体颜色
-    SetControlText(nickname_, name_, true);              //设置字体文本，控件跟随字体长短改变
-    nickname_->move(70, 12);                             //设置控件位置
+    nickname_ = new QLabel(this->centralWidget());                  //创建昵称Label控件
+    SetControlTextFont(nickname_, 15, true);                        //设置字体样式，字号15，加粗
+    SetControlTextColor(nickname_, COLOR_NICKNAME);                 //设置字体颜色
+    SetControlText(nickname_, name_, true);                         //设置字体文本，控件跟随字体长短改变
+    nickname_->move(70, 12);                                        //设置控件位置
     //设置昵称->
 
     //<-设置在线状态
-    user_status_ = new QLabel(this->centralWidget());     //创建用户状态Label控件
-    SetControlTextFont(user_status_, 10, false);          //设置字体样式，字号10
-    SetControlTextColor(user_status_, COLOR_ONLINE);      //设置字体颜色，默认在线
-    SetControlText(user_status_, "在线", false);           //设置字体文本，默认在线
-    user_status_->move(70, 40);                           //设置控件位置
+    user_status_ = new QLabel(this->centralWidget());                                   //创建用户状态Label控件
+    SetControlTextFont(user_status_, 10, false);                                        //设置字体样式，字号10
+    SetControlTextColor(user_status_, COLOR_ONLINE);                                    //设置字体颜色，默认在线
+    SetControlText(user_status_, user_status_menu_option_text_one_, false);             //设置字体文本，默认在线
+    user_status_->move(70, 40);                                                         //设置控件位置
     //设置在线状态->
 
     //<-设置用户状态选择按钮
@@ -132,9 +132,9 @@ void User::SetControlTextFont(T *control, int fontSize, bool bold)
 template <typename T>
 void User::SetControlTextColor(T *control, QString color)
 {
-    QPalette Palette = control->palette();
-    Palette.setColor(QPalette::WindowText, color);
-    control->setPalette(Palette);
+    QPalette palette = control->palette();
+    palette.setColor(QPalette::WindowText, color);
+    control->setPalette(palette);
 }
 
 void User::SetUserStatus(UserStatus nowstatus)
