@@ -6,8 +6,8 @@ User::User(QWidget *parent)
     , ui(new Ui::User)
 {
     ui->setupUi(this);
-    initWidget();
-    connectAll();
+    InitWidget();
+    ConnectAll();
 }
 
 User::~User()
@@ -15,140 +15,167 @@ User::~User()
     delete ui;
 }
 
-void User::connectAll()
+void User::ConnectAll()
 {
-    connect(this, SIGNAL(userStatusChanged(UserStatus)),this, SLOT(handleUserStatusChanged(UserStatus)));
-    connect(userStatusChoose, SIGNAL(clicked(bool)), this, SLOT(showUserStatusMenu()));
-    connect(userStatusMenu, SIGNAL(triggered(QAction*)), this, SLOT(chooseUserStatus(QAction*)));
+    connect(this, SIGNAL(UserStatusChanged(UserStatus)),this, SLOT(HandleUserStatusChanged(UserStatus)));          //用户状态改变处理
+    connect(user_status_choose_, SIGNAL(clicked(bool)), this, SLOT(ShowUserStatusMenu()));                         //点击，出菜单
+    connect(user_status_menu_, SIGNAL(triggered(QAction*)), this, SLOT(ChooseUserStatus(QAction*)));               //点击菜单项的处理
 }
 
 void User::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPalette palette(this->palette());
-    palette.setColor(QPalette::Window, Qt::white);
-    this->setPalette(palette);
 
+    //<-画笔，用于绘制头像和背景
     QPainter painter;
     painter.begin(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform); // 抗锯齿
+    //画笔，用于绘制头像和背景->
 
-    // QPen pen(QColor("#4CD964"),3,Qt::SolidLine,Qt::RoundCap,Qt::MiterJoin);         //轮廓
+    //<-绘制背景颜色
+    // 设置渐变色
+    QLinearGradient linear(QPointF(0, 0), QPointF(this->width(), this->height()));
+    linear.setColorAt(0, COLOR_BACKGROUND_FROM);
+    linear.setColorAt(1, COLOR_BACKGROUND_TO);
+    // 设置显示模式
+    linear.setSpread(QGradient::PadSpread);
+    // 设置画刷填充
+    painter.setBrush(linear);
+    // 绘制背景
+    painter.drawRect(0,0,this->width(),this->height());
+    //绘制背景颜色->
+
+    //<-绘制头像
+    //绘制头像轮廓
+    // QPen pen(QColor("#4CD964"),3,Qt::SolidLine,Qt::RoundCap,Qt::MiterJoin);
     // painter.setPen(pen);
+    //不绘制头像轮廓
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::NoBrush);
-
+    //绘制头像形状
     QPainterPath path;
     // path.addEllipse(10, 10, 50, 50); //圆
     path.addRect(10, 10, 50, 50); //矩形
-
     painter.setClipPath(path);
-
-    // QPixmap pixMap = this->avatarPixmap;
-
-    painter.drawPixmap(10, 10, 50, 50, avatarPixmap);
-
+    //绘制头像图片、位置
+    painter.drawPixmap(10, 10, 50, 50, avatar_pixmap_);
+    //设置绘制窗口
     painter.setClipRect(this->rect());
+    //绘制
     painter.drawPath(path);
+    //绘制头像->
+}
+
+void User::InitWidget()
+{
+    InitUserInfoWidget();       //初始化用户信息控件，包括头像、昵称、状态、状态选择
 
 }
 
-void User::initWidget()
+void User::InitUserInfoWidget()
 {
-    initUserInfoWidget();
+    //<-设置昵称
+    nickname_ = new QLabel(this->centralWidget());       //创建昵称Label控件
+    SetControlTextFont(nickname_, 15, true);             //设置字体样式，字号15，加粗
+    SetControlTextColor(nickname_, COLOR_NICKNAME);      //设置字体颜色
+    SetControlText(nickname_, name_, true);              //设置字体文本，控件跟随字体长短改变
+    nickname_->move(70, 12);                             //设置控件位置
+    //设置昵称->
+
+    //<-设置在线状态
+    user_status_ = new QLabel(this->centralWidget());     //创建用户状态Label控件
+    SetControlTextFont(user_status_, 10, false);          //设置字体样式，字号10
+    SetControlTextColor(user_status_, COLOR_ONLINE);      //设置字体颜色，默认在线
+    SetControlText(user_status_, "在线", false);           //设置字体文本，默认在线
+    user_status_->move(70, 40);                           //设置控件位置
+    //设置在线状态->
+
+    //<-设置用户状态选择按钮
+    user_status_choose_ = new QPushButton(this->centralWidget());                                 //创建用户状态选择PushButton控件
+    user_status_choose_->setFixedSize(25,20);                                                     //设置按钮大小
+    user_status_choose_->setStyleSheet(QString("border: none;color: %1").arg(COLOR_NICKNAME));    //设置按钮无边框、字体颜色
+    SetControlTextFont(user_status_choose_, 13, true);                                            //设置字体样式，字号15，加粗
+    SetControlText(user_status_choose_, "﹀", false);                                             //设置字体文本
+    user_status_choose_->move(nickname_->x() + nickname_->width() + 5, nickname_->y() + 5);       //设置控件位置
+    //设置用户状态选择按钮->
+
+    //<-设置用户状态选择菜单
+    user_status_menu_ = new QMenu(this->centralWidget());                                                                    //创建用户状态选择Menu控件
+    user_choose_online_ = user_status_menu_->addAction(tr(user_status_menu_option_text_one_.toStdString().c_str()));         //添加 在线 选项
+    user_choose_offline_ = user_status_menu_->addAction(tr(user_status_menu_option_text_two_.toStdString().c_str()));        //添加 离线 选项
+    //设置用户状态选择菜单->
 
 }
 
-void User::initUserInfoWidget()
+template <typename T>
+void User::SetControlText(T *control, QString text, bool adjust)
 {
-    //设置昵称
-    nickname = new QLabel(this->centralWidget());
-    setLabelFont(nickname, 15, true);
-    setLabelColor(nickname, "#3366ff");
-    setLabelText(nickname, name, true);
-    nickname->move(70, 12);
-
-    // 设置在线状态
-    userStatus = new QLabel(this->centralWidget());
-    setLabelFont(userStatus, 10, false);
-    setLabelColor(userStatus, ONLINEColor);
-    setLabelText(userStatus, "在线", true);
-    userStatus->move(70, 40);
-
-    //设置用户状态按钮和菜单
-    userStatusChoose = new QPushButton(this->centralWidget());
-    userStatusChoose->setText("﹀");
-    userStatusChoose->setFixedSize(25,20);
-    userStatusChoose->move(nickname->x() + nickname->width() + 5, nickname->y() + 3);
-    userStatusMenu = new QMenu(this->centralWidget());
-    userChooseOnline = userStatusMenu->addAction(tr("在线"));
-    userChooseOffline = userStatusMenu->addAction(tr("离线"));
+    //设置控件text内容
+    control->setText(text);
+    //控件自适应调整（Label）
+    if(adjust == true){
+        control->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        control->adjustSize();
+    }
 }
 
-void User::setLabelText(QLabel *label, QString text, bool adjust)
+template <typename T>
+void User::SetControlTextFont(T *control, int fontSize, bool bold)
 {
-    label->setText(text);
-     if(adjust == true){
-        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        label->adjustSize();
-     }
+    QFont font = control->font();
+    font.setPointSize(fontSize);
+    font.setBold(bold);
+    control->setFont(font);
 }
 
-void User::setLabelFont(QLabel *label, int fontSize, bool bold)
+template <typename T>
+void User::SetControlTextColor(T *control, QString color)
 {
-    QFont labelFont = label->font();          //字体（大小）
-    labelFont.setPointSize(fontSize);
-    labelFont.setBold(bold);
-    label->setFont(labelFont);
-}
-
-void User::setLabelColor(QLabel *label, QString color)
-{
-    QPalette Palette = label->palette();
+    QPalette Palette = control->palette();
     Palette.setColor(QPalette::WindowText, color);
-    label->setPalette(Palette);
+    control->setPalette(Palette);
 }
 
-void User::setUserStatus(UserStatus nowstatus)
+void User::SetUserStatus(UserStatus nowstatus)
 {
-    status = nowstatus;
-    emit userStatusChanged(status);
+    status_ = nowstatus;
+    emit UserStatusChanged(status_);
 }
 
-void User::setAvatarFromURL(const QString &newAvatarURL)
+void User::SetAvatarFromUrl(const QString &newAvatarURL)
 {
-    avatarURL = newAvatarURL;
-    avatarPixmap = utils.getPixmapFromURL(avatarURL);
+    avatar_url_ = newAvatarURL;
+    avatar_pixmap_ = utils_.GetPixmapFromUrl(avatar_url_);
 }
 
-void User::handleUserStatusChanged(UserStatus nowstatus)
+void User::HandleUserStatusChanged(UserStatus nowstatus)
 {
     QString color = "";
     switch(nowstatus){
-        case ONLINE:
-            color = ONLINEColor;
-            setLabelText(userStatus, "在线", false);
+        case kONLINE:
+            color = COLOR_ONLINE;
+            SetControlText(user_status_, user_status_menu_option_text_one_, false);
             break;
-        case OFFLINE:
-            color = OFFLINEColor;
-            setLabelText(userStatus, "离线", false);
+        case kOFFLINE:
+            color = COLOR_OFFLINE;
+            SetControlText(user_status_, user_status_menu_option_text_two_, false);
             break;
     }
-    setLabelColor(userStatus, color);
+    SetControlTextColor(user_status_, color);
 
 }
 
-void User::showUserStatusMenu()
+void User::ShowUserStatusMenu()
 {
-    userStatusMenu->exec(QCursor::pos());
+    user_status_menu_->exec(QCursor::pos());
 }
 
-void User::chooseUserStatus(QAction *action)
+void User::ChooseUserStatus(QAction *action)
 {
-    if(action == userChooseOnline){
-        setUserStatus(ONLINE);
-    }else if(action == userChooseOffline){
-        setUserStatus(OFFLINE);
+    if(action == user_choose_online_){
+        SetUserStatus(kONLINE);
+    }else if(action == user_choose_offline_){
+        SetUserStatus(kOFFLINE);
     }
 }

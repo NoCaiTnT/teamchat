@@ -6,11 +6,11 @@
 #include <QtNetwork/QNetworkReply>
 #include <QEventLoop>
 #include <QLabel>
-class utils
+class Utils
 {
 public:
-    utils();
-    QPixmap getPixmapFromURL(const QString avatarURL);      //根据URL获得图像
+    Utils();
+    QPixmap GetPixmapFromUrl(const QString avatarURL);      //根据URL获得图像
 };
 
 #endif // UTILS_H

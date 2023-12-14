@@ -1,8 +1,8 @@
 #include "utils.h"
 
-utils::utils() {}
+Utils::Utils() {}
 
-QPixmap utils::getPixmapFromURL(const QString avatarURL)
+QPixmap Utils::GetPixmapFromUrl(const QString avatarURL)
 {
     QNetworkAccessManager manager;
     QEventLoop loop;

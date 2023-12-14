@@ -14,58 +14,69 @@ class User;
 QT_END_NAMESPACE
 
 enum UserStatus{
-    ONLINE,
-    OFFLINE
+    kONLINE,
+    kOFFLINE
 };
 
-#define ONLINEColor "#4CD964"
-#define OFFLINEColor "#D71345"
+#define COLOR_ONLINE "#4CD964"
+#define COLOR_OFFLINE "#D71345"
+#define COLOR_NICKNAME "#3366FF"
+#define COLOR_BACKGROUND_FROM "#082E54"
+#define COLOR_BACKGROUND_TO "#000000"
 
 class User : public QMainWindow
 {
     Q_OBJECT
 
 signals:
-    void userStatusChanged(UserStatus nowstatus);               //用户状态改变信号
+    void UserStatusChanged(UserStatus nowstatus);               //用户状态改变信号
 
 private slots:
-    void handleUserStatusChanged(UserStatus nowstatus);         //根据用户状态设置昵称的颜色
-    void showUserStatusMenu();                                  //显示用户在线状态菜单
-    void chooseUserStatus(QAction* action);                     //选择用户状态
+    void HandleUserStatusChanged(UserStatus nowstatus);         //根据用户状态设置昵称的颜色
+    void ShowUserStatusMenu();                                  //显示用户在线状态菜单
+    void ChooseUserStatus(QAction* action);                     //选择用户状态
 
 public:
     User(QWidget *parent = nullptr);
     ~User();
 
     //methods
-    void setAvatarFromURL(const QString &newAvatarURL);     //从URL中获取头像
+    void SetAvatarFromUrl(const QString &newAvatarURL);     //从URL中获取头像
 
 private:
     //variables
-    utils utils;                            //工具类
-    UserStatus status;                      //用户状态
-    QString avatarURL;                      //头像URL
-    QString name = "NoCai";                 //昵称
-    QPixmap avatarPixmap;                   //头像图像
-    QAction *userChooseOnline;              //用户选择在线动作
-    QAction *userChooseOffline;             //用户选择离线动作
+    Utils utils_;                                       //工具类
+    UserStatus status_;                                 //用户状态
+    QString avatar_url_;                                //头像URL
+    QString name_ = "NoCai";                            //昵称
+    QPixmap avatar_pixmap_;                             //头像图像
+    QAction *user_choose_online_;                       //用户选择在线动作
+    QAction *user_choose_offline_;                      //用户选择离线动作
+    QString user_status_menu_option_text_one_ = "在线";  //用户状态菜单选项文本1
+    QString user_status_menu_option_text_two_ = "离线";  //用户状态菜单选项文本2
 
     //control
     Ui::User *ui;
-    QLabel *nickname;                       //昵称
-    QLabel *userStatus;                     //用户状态
-    QMenu *userStatusMenu;                  //状态菜单
-    QPushButton *userStatusChoose;          //用户状态选择按钮
-    QString change;
+    QLabel *nickname_;                          //昵称
+    QLabel *user_status_;                       //用户状态
+    QMenu *user_status_menu_;                   //状态菜单
+    QPushButton *user_status_choose_;           //用户状态选择按钮
+
+    //overrided methods
+    void paintEvent(QPaintEvent *event);        //绘制头像
 
     //methods
-    void connectAll();                      //信号与槽连接
-    void paintEvent(QPaintEvent *event);    //绘制头像
-    void initWidget();                      //初始化所有控件/布局
-    void initUserInfoWidget();              //初始化用户信息相关控件
-    void setLabelText(QLabel* label, QString text, bool adjust);     //设置标签的内容
-    void setLabelFont(QLabel* label, int fontSize, bool bold);       //设置标签的字体大小
-    void setLabelColor(QLabel* label, QString color);                //设置标签的颜色
-    void setUserStatus(UserStatus nowstatus);  //设置用户状态
+    void ConnectAll();                          //信号与槽连接
+    void InitWidget();                          //初始化所有控件/布局
+    void InitUserInfoWidget();                  //初始化用户信息相关控件
+    void SetUserStatus(UserStatus nowstatus);   //设置用户状态
+
+    template <typename T>
+    void SetControlTextFont(T* control, int fontSize, bool bold);             //设置标签的字体大小
+    template <typename T>
+    void SetControlTextColor(T* control, QString color);                      //设置标签的颜色
+    template <typename T>
+    void SetControlText(T* control, QString text, bool adjust);               //设置标签的内容
+
 };
 #endif // USER_H
