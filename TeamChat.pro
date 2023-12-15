@@ -10,10 +10,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    mytitlebar.cpp \
     user.cpp \
     utils.cpp
 
 HEADERS += \
+    mytitlebar.h \
     user.h \
     utils.h
 

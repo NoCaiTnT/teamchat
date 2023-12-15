@@ -6,6 +6,7 @@ User::User(QWidget *parent)
     , ui(new Ui::User)
 {
     ui->setupUi(this);
+    this->setWindowFlag(Qt::FramelessWindowHint);
     InitWidget();
     ConnectAll();
 }
@@ -20,6 +21,11 @@ void User::ConnectAll()
     connect(this, SIGNAL(UserStatusChanged(UserStatus)),this, SLOT(HandleUserStatusChanged(UserStatus)));          //用户状态改变处理
     connect(user_status_choose_, SIGNAL(clicked(bool)), this, SLOT(ShowUserStatusMenu()));                         //点击，出菜单
     connect(user_status_menu_, SIGNAL(triggered(QAction*)), this, SLOT(ChooseUserStatus(QAction*)));               //点击菜单项的处理
+
+    connect(titlebar_, SIGNAL(signalButtonMinClicked()), this, SLOT(onButtonMinClicked()));
+    connect(titlebar_, SIGNAL(signalButtonRestoreClicked()), this, SLOT(onButtonRestoreClicked()));
+    connect(titlebar_, SIGNAL(signalButtonMaxClicked()), this, SLOT(onButtonMaxClicked()));
+    connect(titlebar_, SIGNAL(signalButtonCloseClicked()), this, SLOT(onButtonCloseClicked()));
 }
 
 void User::paintEvent(QPaintEvent *event)
@@ -56,10 +62,10 @@ void User::paintEvent(QPaintEvent *event)
     //绘制头像形状
     QPainterPath path;
     // path.addEllipse(10, 10, 50, 50); //圆
-    path.addRect(10, 10, 50, 50); //矩形
+    path.addRect(10, 30, 50, 50); //矩形
     painter.setClipPath(path);
     //绘制头像图片、位置
-    painter.drawPixmap(10, 10, 50, 50, avatar_pixmap_);
+    painter.drawPixmap(10, 30, 50, 50, avatar_pixmap_);
     //设置绘制窗口
     painter.setClipRect(this->rect());
     //绘制
@@ -69,7 +75,15 @@ void User::paintEvent(QPaintEvent *event)
 
 void User::InitWidget()
 {
+    InitTitlebar();
     InitUserInfoWidget();       //初始化用户信息控件，包括头像、昵称、状态、状态选择
+
+}
+
+void User::InitTitlebar()
+{
+    titlebar_ = new MyTitleBar(this);
+    titlebar_->move(0, 0);
 
 }
 
@@ -80,7 +94,7 @@ void User::InitUserInfoWidget()
     SetControlTextFont(nickname_, 15, true);                        //设置字体样式，字号15，加粗
     SetControlTextColor(nickname_, COLOR_NICKNAME);                 //设置字体颜色
     SetControlText(nickname_, name_, true);                         //设置字体文本，控件跟随字体长短改变
-    nickname_->move(70, 12);                                        //设置控件位置
+    nickname_->move(70, 32);                                        //设置控件位置
     //设置昵称->
 
     //<-设置在线状态
@@ -88,7 +102,7 @@ void User::InitUserInfoWidget()
     SetControlTextFont(user_status_, 10, false);                                        //设置字体样式，字号10
     SetControlTextColor(user_status_, COLOR_ONLINE);                                    //设置字体颜色，默认在线
     SetControlText(user_status_, user_status_menu_option_text_one_, false);             //设置字体文本，默认在线
-    user_status_->move(70, 40);                                                         //设置控件位置
+    user_status_->move(70, 60);                                                         //设置控件位置
     //设置在线状态->
 
     //<-设置用户状态选择按钮
@@ -178,4 +192,30 @@ void User::ChooseUserStatus(QAction *action)
     }else if(action == user_choose_offline_){
         SetUserStatus(kOFFLINE);
     }
+}
+
+void User::onButtonMinClicked()
+{
+    showMinimized();
+}
+
+void User::onButtonRestoreClicked()
+{
+    QPoint windowPos;
+    QSize windowSize;
+    titlebar_->getRestoreInfo(windowPos, windowSize);
+    this->setGeometry(QRect(windowPos, windowSize));
+}
+
+void User::onButtonMaxClicked()
+{
+    titlebar_->saveRestoreInfo(this->pos(), QSize(this->width(), this->height()));
+    QRect desktopRect = QGuiApplication::primaryScreen()->geometry();
+    QRect FactRect = QRect(desktopRect.x() - 3, desktopRect.y() - 3, desktopRect.width() + 6, desktopRect.height() + 6);
+    setGeometry(FactRect);
+}
+
+void User::onButtonCloseClicked()
+{
+    close();
 }

@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPushButton>
+#include <mytitlebar.h>
+#include <QScreen>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,6 +38,11 @@ private slots:
     void ShowUserStatusMenu();                                  //显示用户在线状态菜单
     void ChooseUserStatus(QAction* action);                     //选择用户状态
 
+    void onButtonMinClicked();
+    void onButtonRestoreClicked();
+    void onButtonMaxClicked();
+    void onButtonCloseClicked();
+
 public:
     User(QWidget *parent = nullptr);
     ~User();
@@ -61,6 +68,7 @@ private:
     QLabel *user_status_;                       //用户状态
     QMenu *user_status_menu_;                   //状态菜单
     QPushButton *user_status_choose_;           //用户状态选择按钮
+    MyTitleBar *titlebar_;
 
     //overrided methods
     void paintEvent(QPaintEvent *event);        //绘制头像
@@ -68,6 +76,7 @@ private:
     //methods
     void ConnectAll();                          //信号与槽连接
     void InitWidget();                          //初始化所有控件/布局
+    void InitTitlebar();
     void InitUserInfoWidget();                  //初始化用户信息相关控件
     void SetUserStatus(UserStatus nowstatus);   //设置用户状态
 
